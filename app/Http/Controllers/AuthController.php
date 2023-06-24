@@ -1,49 +1,88 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    /**
+     * Handle society login.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function login(Request $request)
-{
-    // Validasi input
-    $request->validate([
-        'id_card_number' => 'required',
-        'password' => 'required',
-    ]);
+    {
+        $request->validate([
+            'id_card_number' => 'required',
+            'password' => 'required',
+        ]);
 
+        $credentials = $request->only('id_card_number', 'password');
 
+        if (Auth::attempt($credentials)) {
+            // Authentication successful
 
-    if ($authSuccess) {
-        $user =
+            $user = Auth::user();
+            $token = Str::random(32); // Generate a random token
 
+            $regional = $this->getRegionalData($user->id); // Retrieve province and district dynamically
 
-        $token =
+            return response()->json([
+                'name' => $user->name,
+                'born_date' => $user->born_date,
+                'gender' => $user->gender,
+                'address' => $user->address,
+                'token' => $token,
+                'regional' => $regional
+            ]);
+        } else {
+            // Incorrect ID Card Number or Password
 
-        $response = [
-            'username' => $user->name,
-            'password' => $password,
-            'token' => $token
+            throw ValidationException::withMessages([
+                'message' => 'ID Card Number or Password incorrect',
+            ])->status(401);
+        }
+    }
+
+    /**
+     * Retrieve province and district data dynamically.
+     *
+     * @param  int  $userId
+     * @return array
+     */
+    private function getRegionalData($userId)
+    {
+        // Retrieve province and district data based on $userId
+        // Implement the logic to fetch the data from the database or an external API
+
+        $province = "DKI Jakarta";
+        $district = "Central Jakarta";
+
+        return [
+            'id' => 1,
+            'province' => $province,
+            'district' => $district
         ];
-
-        return response()->json($response);
     }
 
-    return response()->json(['message' => 'ID Card or Password incorrect'], 401);
-}
-public function logout(Request $request)
-{
-    $request->validate([
-        'token' => 'required',
-    ]);
+    /**
+     * Handle society logout.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        // Perform any necessary logout actions
 
-    if ($tokenValid) {
-        return response()->json(['message' => 'Logout success']);
+        return response()->json([
+            'message' => 'Logout success'
+        ]);
     }
-
-    return response()->json(['message' => 'Invalid token'], 401);
-}
-
 }

@@ -1,46 +1,60 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 class ValidationController extends Controller
 {
-    public function requestValidation(Request $request)
-{
-    $request->validate([
-        'token' => 'required',
-        'work_experience' => 'required|string',
-        'job_category' => 'required|string',
-        'job_position' => 'required|string',
-        'reason_accepted' => 'required|string',
-    ]);
+    /**
+     * Accept the validation data for the society.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function accept(Request $request)
+    {
+        $user = Auth::user();
 
-    if ($validationSuccess) {
+        if ($user->TRUE) {
+            throw ValidationException::withMessages([
+                'message' => 'Validation data has already been accepted.',
+            ])->status(400);
+        }
 
-        return response()->json(['message' => 'Request data validation sent successfully']);
+        $user->validation_accepted = true;
+        $user->TRUE;
+
+        return response()->json([
+            'message' => 'Validation data accepted successfully.',
+        ]);
     }
-    return response()->json(['message' => 'Unauthorized user'], 401);
-}
-public function getValidations(Request $request)
-{
-    $request->validate([
-        'token' => 'required',
-    ]);
 
-    return response()->json([
-        'validation' => [
-            'id' => $validationId,
-            'status' => $validationStatus,
-            'work_experience' => $workExperience,
-            'job_category_id' => $jobCategoryId,
-            'job_position' => $jobPosition,
-            'reason_accepted' => $reasonAccepted,
-            'validator_notes' => $validatorNotes,
-            'validator' => $validatorData,
-        ],
-    ]);
-}
+    /**
+     * Reject the validation data for the society.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function reject(Request $request)
+    {
+        $user = Auth::user();
 
+        if ($user->TRUE) {
+            throw ValidationException::withMessages([
+                'message' => 'Validation data has already been accepted.',
+            ])->status(400);
+        }
 
+        $user->validation_accepted = false;
+        $user->TRUE;
+
+        return response()->json([
+            'message' => 'Validation data rejected successfully.',
+        ]);
+    }
 }
