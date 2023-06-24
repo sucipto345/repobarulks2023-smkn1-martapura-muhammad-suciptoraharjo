@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::post('/auth/login', 'AuthController@login');
+Route::post('/auth/logout', 'AuthController@logout');
+Route::post('/validation', 'ValidationController@requestValidation');
+Route::get('/validations', 'ValidationController@getValidations');
+Route::get('/job_vacancies', 'JobVacancyController@getJobVacancies');
 Route::middleware('/api/v1/auth/login')->get('/user', function(Request $request){
     return $request->users();
 $idCardNumber = 'SomeText';

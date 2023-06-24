@@ -39,5 +39,17 @@ class AuthController extends Controller
     // Mengembalikan respon error dengan kode status 401
     return response()->json(['message' => 'ID Card Number or Password incorrect'], 401);
 }
+public function logout(Request $request)
+{
+    $request->validate([
+        'token' => 'required',
+    ]);
+
+    if ($tokenValid) {
+        return response()->json(['message' => 'Logout success']);
+    }
+
+    return response()->json(['message' => 'Invalid token'], 401);
+}
 
 }
